@@ -23,7 +23,7 @@ Requirements for lane detection
 		- sklearn
 		- ujon
 		- csaps
-5. To install all python dependencies use 'conda create --name <env> --file requirements.txt'. If you don't want to use conda then individual dependencies need to be installed using pip. This installs python dependencies for all modules which includes
+5. To install all python dependencies use 'conda create --name "your_env_name" --file requirements.txt'. If you don't want to use conda then individual dependencies need to be installed using pip. This installs python dependencies for all modules which includes
       1. Object detection and tracking
       2. Lane detection
 
