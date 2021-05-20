@@ -27,7 +27,7 @@ Requirements for lane detection
       1. Object detection and tracking
       2. Lane detection
 
-##3D Object detection
+## 3D Object detection
 In this project we had also set up PV-RCNN- a deep neural network for 3D object detection on point cloud. We are not using it currently. Instead we are using our own algorithm for 3D object detection.
 To set up PV-RCNN follow the instructions on https://github.com/open-mmlab/OpenPCDet
 Dependecies for our algortihm is included in requirements.txt.
