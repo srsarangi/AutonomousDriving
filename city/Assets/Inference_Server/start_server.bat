@@ -1,0 +1,1 @@
+C:\Users\SATYA\AutonomousDrivingSimulator\env-with-tf\Scripts\activate & python inference_server.py
