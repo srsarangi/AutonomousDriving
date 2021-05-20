@@ -7,7 +7,7 @@ Follow the procedure mentioned below on Windows
 1. Clone the repository
    1. The enitre commit history is quite large, so to shallow clone use  `git clone --depth 1 https://github.com/srsarangi/AutonomousDriving.git`
 2. Open folder named city as a project in unity 2018.4 (Last tested with 2018.4.19f1)
-3. Follow the Lane detection section and 3 D Object detection (optional, follow it only if you want to use PV-RCNN)
+3. Follow the Lane detection section and 3D Object detection (optional, follow it only if you want to use PV-RCNN)
 
 ## Lane detection
 This project uses PINet for lane detection, see Key Points Estimation and Point Instance Segmentation Approach for Lane Detection- {Yeongmin Ko, Younkwan Lee}.
