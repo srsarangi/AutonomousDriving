@@ -70,41 +70,41 @@ namespace CarPhysics
         // Start is called before the first frame update
         void Start()
         {
-            grid_size[0] = grid_size[1] = 80;
+            grid_size[0] = grid_size[1] = 80; //size of voxel grid
             //outputfile = new StreamWriter(Path.Combine("./", "thesisRes.txt"), true);
-            point_sem=semaphore_open("point_sem", getO_Creat(), 1);
-            int shm_fd=shared_mem_open("objects", getO_CREAT_ORDWR());
+            point_sem=semaphore_open("point_sem", getO_Creat(), 1); //semaphore for snyhcronizing mmf 
+            int shm_fd=shared_mem_open("objects", getO_CREAT_ORDWR()); 
             ftrunc(shm_fd, 1000000);
-            mmf=mmap_obj(1000000, shm_fd);
-            
-            shm_fd=shared_mem_open("speed", getO_CREAT_ORDWR());
+            mmf=mmap_obj(1000000, shm_fd); // mmf for storing the bird's eye view
+
+            shm_fd =shared_mem_open("speed", getO_CREAT_ORDWR()); 
             ftrunc(shm_fd, 20);
-            mmf2=mmap_obj(20, shm_fd);
-            
+            mmf2=mmap_obj(20, shm_fd); // mmf for storing the speed
+
             points_idx = 0;
 //            path = @"./Assets/Scripts/carPhysics";
             
             //points = new Vector3[14400];
-            voxelGrid=new Texture2D(grid_size[0], grid_size[1], TextureFormat.RGB24, false);
+            voxelGrid=new Texture2D(grid_size[0], grid_size[1], TextureFormat.RGB24, false); //bird's eye view image's texture 
             offset_x=grid_size[0]/2;
             offset_y=grid_size[1]/2;
-            Quaternion vert_angle_up = Quaternion.AngleAxis(1f, transform.right);
-            Quaternion vert_angle_down = Quaternion.AngleAxis(-1f, transform.right);
-            dirs = new Vector3[numRays, numChannels+3];
-            horQuat = Quaternion.AngleAxis(1, transform.up);
+            Quaternion vert_angle_up = Quaternion.AngleAxis(1f, transform.right); //quaternion to rotate angle downwards
+            Quaternion vert_angle_down = Quaternion.AngleAxis(-1f, transform.right); //quaternion to rotate angle upwards
+            dirs = new Vector3[numRays, numChannels+3]; //array contains direction of each ray
+            horQuat = Quaternion.AngleAxis(1, transform.up); //horizontal resolution quaternion
             dirs[0, 0] = vert_angle_down * transform.forward;
             for (int i = 1; i < 3; i++)
             {
-                dirs[0, i] = vert_angle_down * dirs[0, i - 1];
+                dirs[0, i] = vert_angle_down * dirs[0, i - 1]; //filling up direction array
             }
 
             dirs[0, 3] = vert_angle_up * transform.forward;
             for (int i = 4; i < numChannels+3; i++)
             {
-                dirs[0, i] = vert_angle_up * dirs[0, i - 1];
+                dirs[0, i] = vert_angle_up * dirs[0, i - 1]; //filling up direction array
             }
 
-            float tempangle = 360 / numRays;
+            float tempangle = 360 / numRays; //angle between each set of rays
             for (int i = 1; i < numRays; i++)
             {
                 Quaternion temp = Quaternion.AngleAxis(tempangle, transform.up);
@@ -123,7 +123,7 @@ namespace CarPhysics
             //if (!isPointCloudReady)
             //{
                 //points_idx = 0;
-                origin = transform.position + transform.up;
+                origin = transform.position + transform.up; //origin of LIDAR
                 // var results = new NativeArray<RaycastHit>(numRays * 2 * numChannels, Allocator.Temp);
                 //outputfile.WriteLine("hi");
                 // var commands = new NativeArray<RaycastCommand>(numRays * 2 * numChannels, Allocator.Temp);
@@ -133,15 +133,15 @@ namespace CarPhysics
                     for (int i = 0; i < numChannels+3; i++)
                     {
                         // Debug.Log(points_idx.ToString());
-                        flag = Physics.Raycast(origin, dirs[j, i], out outhit, 20f);
+                        flag = Physics.Raycast(origin, dirs[j, i], out outhit, 20f); //Single ray simulated by RayCast
                         if (flag && !outhit.collider.CompareTag("Terrain"))
                         {
                             //Debug.DrawLine(origin, outhit.point, Color.red);
                             //Vector3 tmp = outhit.point - origin;
-                            Vector3 tmp=transform.InverseTransformPoint(outhit.point);
+                            Vector3 tmp=transform.InverseTransformPoint(outhit.point); //Getting the point hit with respect to car coordinates
                             //outputfile.WriteLine(tmp[2] + " " + tmp[0] + " " + tmp[1]);
                             if(tmp[1]>floor)
-                              voxelGrid.SetPixel((int)(tmp[0]/res)+offset_y, (int)(tmp[2]/res)+offset_x, Color.white);
+                              voxelGrid.SetPixel((int)(tmp[0]/res)+offset_y, (int)(tmp[2]/res)+offset_x, Color.white); //getting the point hit in top view
                             //else
                               //voxelGrid.SetPixel((int)(tmp[0]/res)+offset_y, (int)(-tmp[2]/res)+offset_x, Color.black);
                             //points[points_idx] = tmp;
@@ -149,18 +149,18 @@ namespace CarPhysics
                         }
 
                         // commands[j*numRays+i] = new RaycastCommand(origin, dirs[j, i]);
-                        dirs[j, i] = horQuat * dirs[j, i];
+                        dirs[j, i] = horQuat * dirs[j, i]; //rotating each ray by horizontal resolution
                         // cnout = j;
                     }
                 }
                 points_idx++;
-                if(points_idx>=5){ 
+                if(points_idx>=5){  // point_idx==5 means one round completed
                   voxelGrid.Apply();
-                  byte[] image = voxelGrid.EncodeToPNG();
+                  byte[] image = voxelGrid.EncodeToPNG(); //obtain bird's eye view image from the texture
                   //Object.DestroyImmediate(voxelGrid);
-                  string strPts = Convert.ToBase64String(image);
-                  voxelGrid = new Texture2D(grid_size[0], grid_size[1], TextureFormat.RGB24, false);
-                  int speed = (int) (rigid_car.velocity.magnitude * 100);
+                  string strPts = Convert.ToBase64String(image); //convert the image to string
+                  voxelGrid = new Texture2D(grid_size[0], grid_size[1], TextureFormat.RGB24, false); //make a new texture
+                  int speed = (int) (rigid_car.velocity.magnitude * 100); //speed of our car
                   wait(point_sem);
                   writeMMF(strPts, mmf);
                   WriteInt(speed, mmf2);
@@ -192,7 +192,7 @@ namespace CarPhysics
 
         private void OnApplicationQuit()
         {
-            reset();
+            reset(); //rest the semaphores and mmf files used
         }
        
         
